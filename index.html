@@ -5,56 +5,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Hadir Reuni</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f9f9f9; }
-        .container { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #007bff; color: white; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 20px; 
+            background-color: #f0f2f5; 
+            color: #333;
+        }
+        .container { 
+            max-width: 700px; 
+            margin: auto; 
+            background-color: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+        
+        /* Pengaturan Layout Judul & Logo */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            gap: 15px; /* Jarak antara logo dan teks */
+        }
+        .logo {
+            width: 70px; /* Ukuran logo dikecilkan */
+            height: auto;
+            object-fit: contain;
+        }
+        .header-text {
+            text-align: left;
+        }
+        .header-text h2 { 
+            color: #2c3e50; 
+            margin: 0 0 5px 0;
+            font-size: 22px;
+        }
+        .header-text .subtitle { 
+            color: #7f8c8d; 
+            margin: 0; 
+            font-size: 14px;
+        }
+
+        /* Pengaturan Kotak Kontak WA */
+        .contact-box {
+            text-align: center;
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #555;
+            border: 1px dashed #ccc;
+        }
+        .wa-link {
+            color: #25D366; /* Warna khas WhatsApp */
+            text-decoration: none;
+            font-weight: bold;
+            padding: 2px 6px;
+            background-color: #e8fbf0;
+            border-radius: 4px;
+        }
+        .wa-link:hover {
+            background-color: #d1f4e0;
+        }
+
+        .text-center { text-align: center; }
+        .info-box {
+            background-color: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 15px; }
+        th, td { border-bottom: 1px solid #eee; padding: 12px 10px; text-align: left; }
+        th { background-color: #3498db; color: white; border-bottom: none; }
+        tr:hover { background-color: #f9f9f9; }
+        td.text-center { text-align: center; }
+
+        /* Penyesuaian untuk HP layar kecil */
+        @media (max-width: 480px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            .header-text {
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Daftar Peserta Terkonfirmasi</h2>
-        <p>Total Konfirmasi: <strong id="total-peserta">0</strong> orang</p>
+        <div class="header-container">
+            <img src="logo.jpg" alt="Logo Reuni" class="logo">
+            <div class="header-text">
+                <h2>Konfirmasi Hadir Reuni</h2>
+		<h2>SMPN 1 Banyuwangi</h2>
+                <p class="subtitle">Kecaruk Riko Maning Dulur</p>
+            </div>
+        </div>
+
+        <div class="contact-box">
+            Konfirmasi hadir : <br>
+            Anisah <a href="https://wa.me/628124861790" target="_blank" class="wa-link">08124861790</a> &nbsp;|&nbsp; 
+            Noenk <a href="https://wa.me/628123491222" target="_blank" class="wa-link">08123491222</a>
+        </div>
+
+        <div class="info-box">
+            Total Alumni Hadir: <strong id="total-peserta" style="font-size: 18px; color: #2980b9;">0</strong> orang
+        </div>
 
         <table id="tabel-peserta">
             <thead>
                 <tr>
+                    <th style="width: 50px; text-align: center;">No.</th>
                     <th>Nama Alumni</th>
                     <th>Nomor HP</th>
-                    <th>Admin Input</th>
+                    <th>Admin</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td colspan="3">Memuat data dari server...</td></tr>
+                <tr><td colspan="4" class="text-center">Memuat data dari server...</td></tr>
             </tbody>
         </table>
     </div>
 
     <script>
-        // GANTI DENGAN WEB APP URL DARI GOOGLE APPS SCRIPT TADI
         const apiUrl = 'https://script.google.com/macros/s/AKfycbzYuOivloA5-WfWmofs3hdAEtDom-Q2VmW7VMfqF5LgaNgmrmfNVRV06NSIl8ieg583/exec';
 
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
                 const tbody = document.querySelector('#tabel-peserta tbody');
-                tbody.innerHTML = ''; // Kosongkan teks "Memuat data..."
+                tbody.innerHTML = ''; 
                 document.getElementById('total-peserta').innerText = data.length;
 
-                data.forEach(peserta => {
+                data.forEach((peserta, index) => {
+                    let nohp = String(peserta.nohp);
+                    let nohpSensor = nohp.length > 4 ? nohp.slice(0, -4) + "****" : nohp;
+
                     const row = `<tr>
-                        <td>${peserta.nama}</td>
-                        <td>${peserta.nohp}</td>
-                        <td>${peserta.admin}</td>
+                        <td class="text-center"><strong>${index + 1}</strong></td>
+                        <td><strong>${peserta.nama}</strong></td>
+                        <td>${nohpSensor}</td>
+                        <td><small style="color:#7f8c8d">${peserta.admin}</small></td>
                     </tr>`;
                     tbody.innerHTML += row;
                 });
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.querySelector('#tabel-peserta tbody').innerHTML = '<tr><td colspan="3">Gagal memuat data. Silakan refresh halaman.</td></tr>';
+                document.querySelector('#tabel-peserta tbody').innerHTML = '<tr><td colspan="4" class="text-center" style="color:red;">Gagal memuat data. Silakan refresh halaman.</td></tr>';
             });
     </script>
 </body>
