@@ -20,16 +20,15 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
         }
         
-        /* Pengaturan Layout Judul & Logo */
         .header-container {
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 15px;
-            gap: 15px; /* Jarak antara logo dan teks */
+            gap: 15px; 
         }
         .logo {
-            width: 70px; /* Ukuran logo dikecilkan */
+            width: 70px; 
             height: auto;
             object-fit: contain;
         }
@@ -47,7 +46,6 @@
             font-size: 14px;
         }
 
-        /* Pengaturan Kotak Kontak WA */
         .contact-box {
             text-align: center;
             background-color: #f8f9fa;
@@ -59,7 +57,7 @@
             border: 1px dashed #ccc;
         }
         .wa-link {
-            color: #25D366; /* Warna khas WhatsApp */
+            color: #25D366; 
             text-decoration: none;
             font-weight: bold;
             padding: 2px 6px;
@@ -78,13 +76,45 @@
             margin-bottom: 20px;
             border-radius: 4px;
         }
+        
+        /* Gaya khusus untuk kotak rekap kaos (Diperbarui) */
+        .rekap-kaos {
+            background-color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border: 1px solid #bce8f1;
+            color: #2c3e50;
+        }
+        .rekap-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .rekap-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .rekap-item {
+            background-color: #ecf0f1;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            border: 1px solid #bdc3c7;
+        }
+        .rekap-item strong {
+            color: #e74c3c; /* Warna merah agar jumlahnya mencolok */
+            font-size: 15px;
+            margin-left: 5px;
+        }
+
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 15px; }
         th, td { border-bottom: 1px solid #eee; padding: 12px 10px; text-align: left; }
         th { background-color: #3498db; color: white; border-bottom: none; }
         tr:hover { background-color: #f9f9f9; }
         td.text-center { text-align: center; }
 
-        /* Penyesuaian untuk HP layar kecil */
         @media (max-width: 480px) {
             .header-container {
                 flex-direction: column;
@@ -103,7 +133,7 @@
             <img src="logo.jpg" alt="Logo Reuni" class="logo">
             <div class="header-text">
                 <h2>Konfirmasi Hadir Reuni</h2>
-		<h2>SMPN 1 Banyuwangi</h2>
+                <h2>SMPN 1 Banyuwangi</h2>
                 <p class="subtitle">Kecaruk Riko Maning Dulur</p>
             </div>
         </div>
@@ -115,7 +145,13 @@
         </div>
 
         <div class="info-box">
-            Total Alumni Hadir: <strong id="total-peserta" style="font-size: 18px; color: #2980b9;">0</strong> orang
+            <div style="font-size: 15px;">
+                Total Alumni Hadir: <strong id="total-peserta" style="font-size: 20px; color: #2980b9;">0</strong> orang
+            </div>
+            
+            <div class="rekap-kaos" id="tempat-rekap">
+                Memuat rekapitulasi pesanan kaos...
+            </div>
         </div>
 
         <table id="tabel-peserta">
@@ -123,8 +159,8 @@
                 <tr>
                     <th style="width: 50px; text-align: center;">No.</th>
                     <th>Nama Alumni</th>
-                    <th>Nomor HP</th>
-                    <th>Admin</th>
+                    <th class="text-center">Ukuran Kaos</th>
+                    <th class="text-center">Lengan</th>
                 </tr>
             </thead>
             <tbody>
@@ -143,22 +179,60 @@
                 tbody.innerHTML = ''; 
                 document.getElementById('total-peserta').innerText = data.length;
 
-                data.forEach((peserta, index) => {
-                    let nohp = String(peserta.nohp);
-                    let nohpSensor = nohp.length > 4 ? nohp.slice(0, -4) + "****" : nohp;
+                // Objek kosong untuk menyimpan kombinasi (misal: "M Panjang")
+                let rekapKaos = {};
 
+                data.forEach((peserta, index) => {
+                    // Cetak ke tabel
                     const row = `<tr>
                         <td class="text-center"><strong>${index + 1}</strong></td>
                         <td><strong>${peserta.nama}</strong></td>
-                        <td>${nohpSensor}</td>
-                        <td><small style="color:#7f8c8d">${peserta.admin}</small></td>
+                        <td class="text-center">${peserta.ukuran}</td>
+                        <td class="text-center">${peserta.lengan}</td>
                     </tr>`;
                     tbody.innerHTML += row;
+
+                    // Bersihkan spasi dan samakan format huruf
+                    let uk = String(peserta.ukuran).trim().toUpperCase();
+                    let len = String(peserta.lengan).trim().toLowerCase();
+                    let lenStr = len.includes('panjang') ? 'Panjang' : 'Pendek';
+
+                    // Hanya hitung jika data ukuran tidak kosong
+                    if (uk !== "" && uk !== "UNDEFINED") {
+                        let kunciKombinasi = uk + ' ' + lenStr; // Hasil: "XL Pendek"
+                        
+                        if (rekapKaos[kunciKombinasi] === undefined) {
+                            rekapKaos[kunciKombinasi] = 0;
+                        }
+                        rekapKaos[kunciKombinasi]++;
+                    }
                 });
+
+                // Cetak hasil rekap ke layar dengan bentuk kotak-kotak rapi
+                let rekapHtml = '<div class="rekap-title">Rekap Pesanan Kaos:</div><div class="rekap-grid">';
+                let adaData = false;
+
+                // Mengurutkan kunci agar tampilannya rapi (opsional tapi bagus)
+                let kunciUrut = Object.keys(rekapKaos).sort();
+
+                kunciUrut.forEach(kunci => {
+                    if (rekapKaos[kunci] > 0) {
+                        rekapHtml += `<div class="rekap-item">${kunci} = <strong>${rekapKaos[kunci]}</strong></div>`;
+                        adaData = true;
+                    }
+                });
+
+                if (!adaData) {
+                    rekapHtml += '<div style="color: #7f8c8d; font-size: 13px;">Belum ada pesanan kaos yang terkonfirmasi.</div>';
+                }
+
+                rekapHtml += '</div>';
+                document.getElementById('tempat-rekap').innerHTML = rekapHtml;
             })
             .catch(error => {
                 console.error('Error:', error);
                 document.querySelector('#tabel-peserta tbody').innerHTML = '<tr><td colspan="4" class="text-center" style="color:red;">Gagal memuat data. Silakan refresh halaman.</td></tr>';
+                document.getElementById('tempat-rekap').innerHTML = 'Gagal memuat rekap.';
             });
     </script>
 </body>
