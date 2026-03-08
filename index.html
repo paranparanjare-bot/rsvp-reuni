@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Hadir Reuni</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f9f9f9; }
+        .container { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Daftar Peserta Terkonfirmasi</h2>
+        <p>Total Konfirmasi: <strong id="total-peserta">0</strong> orang</p>
+
+        <table id="tabel-peserta">
+            <thead>
+                <tr>
+                    <th>Nama Alumni</th>
+                    <th>Nomor HP</th>
+                    <th>Admin Input</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="3">Memuat data dari server...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // GANTI DENGAN WEB APP URL DARI GOOGLE APPS SCRIPT TADI
+        const apiUrl = 'https://script.google.com/macros/s/AKfycbzYuOivloA5-WfWmofs3hdAEtDom-Q2VmW7VMfqF5LgaNgmrmfNVRV06NSIl8ieg583/exec';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#tabel-peserta tbody');
+                tbody.innerHTML = ''; // Kosongkan teks "Memuat data..."
+                document.getElementById('total-peserta').innerText = data.length;
+
+                data.forEach(peserta => {
+                    const row = `<tr>
+                        <td>${peserta.nama}</td>
+                        <td>${peserta.nohp}</td>
+                        <td>${peserta.admin}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.querySelector('#tabel-peserta tbody').innerHTML = '<tr><td colspan="3">Gagal memuat data. Silakan refresh halaman.</td></tr>';
+            });
+    </script>
+</body>
+</html>
