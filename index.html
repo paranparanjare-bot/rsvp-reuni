@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Hadir Reuni</title>
+    <title>Daftar Hadir & Distribusi Kaos Reuni</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f0f2f5; color: #333; }
         .container { max-width: 700px; margin: auto; background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
@@ -12,33 +12,26 @@
         .header-text { text-align: left; }
         .header-text h2 { color: #2c3e50; margin: 0 0 5px 0; font-size: 22px; }
         .header-text .subtitle { color: #7f8c8d; margin: 0; font-size: 14px; }
-        .contact-box { text-align: center; background-color: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; color: #555; border: 1px dashed #ccc; }
-        .wa-link { color: #25D366; text-decoration: none; font-weight: bold; padding: 2px 6px; background-color: #e8fbf0; border-radius: 4px; }
-        .wa-link:hover { background-color: #d1f4e0; }
-        .text-center { text-align: center; }
-        .info-box { background-color: #e8f4fd; border-left: 4px solid #3498db; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 15px; }
         th, td { border-bottom: 1px solid #eee; padding: 12px 10px; text-align: left; }
         th { background-color: #3498db; color: white; border-bottom: none; }
         tr:hover { background-color: #f9f9f9; }
-        td.text-center { text-align: center; }
-
-        /* Tombol Delete */
+        .text-center { text-align: center; }
         .btn-delete { background-color: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; }
-        .btn-delete:hover { background-color: #c0392b; }
 
-        /* Gaya Rekap Kaos (Dipindah ke bawah) */
         .rekap-kaos { background-color: white; padding: 15px; border-radius: 6px; margin-top: 30px; border: 1px solid #bce8f1; color: #2c3e50; }
-        .rekap-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
-        .rekap-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-        .rekap-item { background-color: #ecf0f1; padding: 6px 12px; border-radius: 6px; font-size: 13px; border: 1px solid #bdc3c7; }
+        .rekap-item { background-color: #ecf0f1; padding: 6px 12px; border-radius: 6px; font-size: 13px; display: inline-block; margin: 5px; }
         .rekap-item strong { color: #e74c3c; font-size: 15px; margin-left: 5px; }
 
-        @media (max-width: 480px) {
-            .header-container { flex-direction: column; text-align: center; }
-            .header-text { text-align: center; }
-        }
+        /* GAYA PANEL LOGISTIK */
+        .btn-logistik { background-color: #f39c12; color: white; border: none; padding: 10px 15px; border-radius: 8px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 20px;}
+        .panel-logistik { background-color: #fff8e1; border: 2px dashed #f39c12; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;}
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .btn-kamera { background-color: #27ae60; color: white; padding: 10px; border: none; border-radius: 6px; width: 100%; font-size: 16px; cursor: pointer; font-weight: bold;}
+        .btn-kamera:disabled { background-color: #95a5a6; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -47,24 +40,36 @@
         <div class="header-container">
             <img src="logo.jpg" alt="Logo Reuni" class="logo">
             <div class="header-text">
-                <h2>Konfirmasi Hadir Reuni</h2>
+                <h2>Distribusi Kaos Reuni</h2>
                 <h2>SMPN 1 Banyuwangi</h2>
                 <p class="subtitle">Kecaruk Riko Maning Dulur</p>
             </div>
         </div>
 
-        <div class="contact-box">
-            Konfirmasi hadir [klik nomor HP dibawah ini] : <br>
-            Anisah <a href="https://wa.me/628124861790" target="_blank" class="wa-link">08124861790</a> <br> 
-            Noenk <a href="https://wa.me/6281234912222" target="_blank" class="wa-link">081234912222</a> <br>
-            Titis <a href="https://wa.me/6281230326236" target="_blank" class="wa-link">081230326236</a> <br>
-            Tjahyadi <a href="https://wa.me/6281316314227" target="_blank" class="wa-link">081316314227</a>
-        </div>
+        <button class="btn-logistik" onclick="toggleLogistik()">📦 Buka Panel Logistik (Khusus Panitia)</button>
 
-        <div class="info-box">
-            <div style="font-size: 15px;">
-                Total Alumni Hadir: <strong id="total-peserta" style="font-size: 20px; color: #2980b9;">0</strong> orang
+        <div class="panel-logistik" id="box-logistik">
+            <h3 style="margin-top:0; color:#d35400;">Area Pengambilan Kaos</h3>
+            
+            <div class="form-group">
+                <label>Nama Pengambil:</label>
+                <select class="form-control" id="input-nama">
+                    <option value="">-- Pilih Nama Alumni --</option>
+                    </select>
             </div>
+
+            <div class="form-group">
+                <label>PIN Admin:</label>
+                <input type="password" class="form-control" id="input-pin" placeholder="Masukkan PIN 6 digit">
+            </div>
+
+            <div class="form-group">
+                <label>Ambil Foto Bukti:</label>
+                <input type="file" class="form-control" id="input-foto" accept="image/*" capture="camera" style="background: white;">
+            </div>
+
+            <button class="btn-kamera" id="btn-simpan" onclick="simpanPengambilan()">📸 Upload & Simpan Data</button>
+            <p id="status-upload" style="text-align: center; font-weight: bold; color: #2980b9;"></p>
         </div>
 
         <table id="tabel-peserta">
@@ -73,119 +78,144 @@
                     <th style="width: 40px; text-align: center;">No.</th>
                     <th>Nama Alumni</th>
                     <th class="text-center">Ukuran</th>
-                    <th class="text-center">Lengan</th>
                     <th class="text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td colspan="5" class="text-center">Memuat data dari server...</td></tr>
+                <tr><td colspan="4" class="text-center">Memuat data dari server...</td></tr>
             </tbody>
         </table>
 
-        <div class="rekap-kaos" id="tempat-rekap">
-            Memuat rekapitulasi pesanan kaos...
-        </div>
+        <div class="rekap-kaos" id="tempat-rekap">Memuat rekapitulasi pesanan kaos...</div>
     </div>
 
     <script>
-        // URL API Anda
+        // PASTIKAN URL API ANDA MASIH BENAR DI SINI
         const apiUrl = 'https://script.google.com/macros/s/AKfycbzYuOivloA5-WfWmofs3hdAEtDom-Q2VmW7VMfqF5LgaNgmrmfNVRV06NSIl8ieg583/exec';
 
-        // Fungsi Load Data
+        // Tampilkan/Sembunyikan Panel Logistik
+        function toggleLogistik() {
+            const panel = document.getElementById('box-logistik');
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // Muat Data Tabel & Dropdown
         function muatData() {
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
                     const tbody = document.querySelector('#tabel-peserta tbody');
+                    const dropdownNama = document.getElementById('input-nama');
+                    
                     tbody.innerHTML = ''; 
-                    document.getElementById('total-peserta').innerText = data.length;
+                    dropdownNama.innerHTML = '<option value="">-- Pilih Nama Alumni --</option>'; // Reset dropdown
 
-                    // Mengurutkan data berdasarkan Abjad Nama (A-Z)
                     data.sort((a, b) => a.nama.localeCompare(b.nama, 'id', {sensitivity: 'base'}));
-
                     let rekapKaos = {};
 
                     data.forEach((peserta, index) => {
-                        // Agar tanda kutip di nama tidak membuat error saat di-klik
                         let safeName = peserta.nama.replace(/'/g, "\\'"); 
-
-                        const row = `<tr>
+                        
+                        // Cetak ke Tabel
+                        tbody.innerHTML += `<tr>
                             <td class="text-center"><strong>${index + 1}</strong></td>
                             <td><strong>${peserta.nama}</strong></td>
                             <td class="text-center">${peserta.ukuran}</td>
-                            <td class="text-center">${peserta.lengan}</td>
-                            <td class="text-center">
-                                <button class="btn-delete" onclick="hapusData('${safeName}')">Hapus</button>
-                            </td>
+                            <td class="text-center"><button class="btn-delete" onclick="hapusData('${safeName}')">Hapus</button></td>
                         </tr>`;
-                        tbody.innerHTML += row;
 
-                        // Perhitungan Rekap Kaos
+                        // Masukkan nama ke dalam Dropdown Logistik
+                        dropdownNama.innerHTML += `<option value="${peserta.nama}">${peserta.nama} (${peserta.ukuran})</option>`;
+
+                        // Hitung Rekap
                         let uk = String(peserta.ukuran).trim().toUpperCase();
-                        let len = String(peserta.lengan).trim().toLowerCase();
-                        let lenStr = len.includes('panjang') ? 'Panjang' : 'Pendek';
-
+                        let lenStr = String(peserta.lengan).toLowerCase().includes('panjang') ? 'Panjang' : 'Pendek';
                         if (uk !== "" && uk !== "UNDEFINED" && uk !== "-") {
                             let kunciKombinasi = uk + ' ' + lenStr; 
-                            if (rekapKaos[kunciKombinasi] === undefined) {
-                                rekapKaos[kunciKombinasi] = 0;
-                            }
+                            if (rekapKaos[kunciKombinasi] === undefined) rekapKaos[kunciKombinasi] = 0;
                             rekapKaos[kunciKombinasi]++;
                         }
                     });
 
-                    // Cetak Rekap Kaos di Bawah
-                    let rekapHtml = '<div class="rekap-title">Rekap Pesanan Kaos:</div><div class="rekap-grid">';
-                    let adaData = false;
-                    let kunciUrut = Object.keys(rekapKaos).sort();
-
-                    kunciUrut.forEach(kunci => {
-                        if (rekapKaos[kunci] > 0) {
-                            rekapHtml += `<div class="rekap-item">${kunci} = <strong>${rekapKaos[kunci]}</strong></div>`;
-                            adaData = true;
-                        }
+                    // Cetak Rekap
+                    let rekapHtml = '<div style="font-weight: bold; margin-bottom: 10px;">Total Pesanan Kaos (Keseluruhan):</div>';
+                    Object.keys(rekapKaos).sort().forEach(kunci => {
+                        rekapHtml += `<div class="rekap-item">${kunci} = <strong>${rekapKaos[kunci]}</strong></div>`;
                     });
-
-                    if (!adaData) {
-                        rekapHtml += '<div style="color: #7f8c8d; font-size: 13px;">Belum ada pesanan kaos.</div>';
-                    }
-                    rekapHtml += '</div>';
                     document.getElementById('tempat-rekap').innerHTML = rekapHtml;
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.querySelector('#tabel-peserta tbody').innerHTML = '<tr><td colspan="5" class="text-center" style="color:red;">Gagal memuat data.</td></tr>';
-                });
+                .catch(error => console.error('Error:', error));
         }
 
-        // Fungsi Hapus Data
-        function hapusData(nama) {
-            let pass = prompt(`Masukkan password admin untuk menghapus nama "${nama}":`);
-            
-            // Jika user klik cancel atau membiarkan kosong
-            if (!pass) return; 
+        // Proses Eksekusi Kamera & Kirim Data
+        function simpanPengambilan() {
+            const nama = document.getElementById('input-nama').value;
+            const pin = document.getElementById('input-pin').value;
+            const fotoInput = document.getElementById('input-foto');
+            const statusText = document.getElementById('status-upload');
+            const btnSimpan = document.getElementById('btn-simpan');
 
-            if (confirm(`Anda yakin ingin menghapus data ${nama} secara permanen?`)) {
-                // Tampilkan indikator loading di tombol atau layar bisa ditambahkan di sini
-                let deleteUrl = apiUrl + '?action=delete&nama=' + encodeURIComponent(nama) + '&pass=' + encodeURIComponent(pass);
-                
-                fetch(deleteUrl)
-                    .then(response => response.json())
-                    .then(res => {
-                        if (res.status === 'success') {
-                            alert("Data berhasil dihapus!");
-                            muatData(); // Refresh tabel tanpa perlu refresh halaman web
-                        } else {
-                            alert("GAGAL: " + res.message);
-                        }
+            if (!nama || !pin || fotoInput.files.length === 0) {
+                alert("Harap pilih nama, masukkan PIN, dan ambil foto bukti!");
+                return;
+            }
+
+            statusText.innerText = "⏳ Sedang mengunggah foto ke Google Drive... Mohon tunggu.";
+            btnSimpan.disabled = true;
+
+            const file = fotoInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const base64String = e.target.result;
+
+                // Kirim data ke API menggunakan metode POST
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Format aman untuk Apps Script
+                    body: JSON.stringify({
+                        action: "upload",
+                        pin: pin,
+                        nama: nama,
+                        file: base64String,
+                        mimeType: file.type
                     })
-                    .catch(error => {
-                        alert("Terjadi kesalahan sistem/jaringan.");
-                    });
+                })
+                .then(response => response.json())
+                .then(res => {
+                    if (res.status === 'success') {
+                        statusText.innerText = "✅ Berhasil! Data dan foto telah tersimpan.";
+                        alert(`Pengambilan kaos atas nama ${nama} berhasil dicatat!`);
+                        
+                        // Bersihkan form
+                        document.getElementById('input-nama').value = '';
+                        document.getElementById('input-pin').value = '';
+                        document.getElementById('input-foto').value = '';
+                    } else {
+                        statusText.innerText = "❌ Gagal: " + res.message;
+                    }
+                })
+                .catch(err => {
+                    statusText.innerText = "❌ Gagal mengunggah karena gangguan jaringan.";
+                })
+                .finally(() => {
+                    btnSimpan.disabled = false;
+                });
+            };
+            
+            reader.readAsDataURL(file); // Mulai ubah foto ke format teks base64
+        }
+
+        function hapusData(nama) {
+            let pass = prompt(`Password admin hapus data "${nama}":`);
+            if (!pass) return; 
+            if (confirm(`Hapus data ${nama}?`)) {
+                fetch(apiUrl + '?action=delete&nama=' + encodeURIComponent(nama) + '&pass=' + encodeURIComponent(pass))
+                    .then(res => res.json())
+                    .then(res => { res.status === 'success' ? muatData() : alert("GAGAL: " + res.message); });
             }
         }
 
-        // Panggil fungsi saat web dibuka
         muatData();
     </script>
 </body>
