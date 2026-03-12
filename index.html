@@ -18,7 +18,10 @@
         th { background-color: #3498db; color: white; border-bottom: none; }
         tr:hover { background-color: #f9f9f9; }
         .text-center { text-align: center; }
-        .btn-delete { background-color: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+
+        /* Badge Status Baru */
+        .badge-sudah { background-color: #27ae60; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .badge-belum { background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
 
         .rekap-kaos { background-color: white; padding: 15px; border-radius: 6px; margin-top: 30px; border: 1px solid #bce8f1; color: #2c3e50; }
         .rekap-item { background-color: #ecf0f1; padding: 6px 12px; border-radius: 6px; font-size: 13px; display: inline-block; margin: 5px; }
@@ -55,12 +58,12 @@
                 <label>Nama Pengambil:</label>
                 <select class="form-control" id="input-nama">
                     <option value="">-- Pilih Nama Alumni --</option>
-                    </select>
+                </select>
             </div>
 
             <div class="form-group">
                 <label>PIN Admin:</label>
-                <input type="password" class="form-control" id="input-pin" placeholder="Masukkan PIN 6 digit">
+                <input type="password" class="form-control" id="input-pin" placeholder="Masukkan PIN 3 digit: 000">
             </div>
 
             <div class="form-group">
@@ -78,7 +81,7 @@
                     <th style="width: 40px; text-align: center;">No.</th>
                     <th>Nama Alumni</th>
                     <th class="text-center">Ukuran</th>
-                    <th class="text-center">Aksi</th>
+                    <th class="text-center">Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -90,16 +93,13 @@
     </div>
 
     <script>
-        // PASTIKAN URL API ANDA MASIH BENAR DI SINI
         const apiUrl = 'https://script.google.com/macros/s/AKfycbzYuOivloA5-WfWmofs3hdAEtDom-Q2VmW7VMfqF5LgaNgmrmfNVRV06NSIl8ieg583/exec';
 
-        // Tampilkan/Sembunyikan Panel Logistik
         function toggleLogistik() {
             const panel = document.getElementById('box-logistik');
             panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
         }
 
-        // Muat Data Tabel & Dropdown
         function muatData() {
             fetch(apiUrl)
                 .then(response => response.json())
@@ -108,26 +108,31 @@
                     const dropdownNama = document.getElementById('input-nama');
                     
                     tbody.innerHTML = ''; 
-                    dropdownNama.innerHTML = '<option value="">-- Pilih Nama Alumni --</option>'; // Reset dropdown
+                    dropdownNama.innerHTML = '<option value="">-- Pilih Nama Alumni --</option>';
 
                     data.sort((a, b) => a.nama.localeCompare(b.nama, 'id', {sensitivity: 'base'}));
                     let rekapKaos = {};
 
                     data.forEach((peserta, index) => {
-                        let safeName = peserta.nama.replace(/'/g, "\\'"); 
-                        
-                        // Cetak ke Tabel
+                        // Desain logo centang atau silang berdasarkan status
+                        let statusBadge = peserta.status === "Sudah Diambil" 
+                            ? '<span class="badge-sudah">✅ Sudah</span>' 
+                            : '<span class="badge-belum">❌ Belum</span>';
+
+                        // Memasukkan data ke tabel (Tombol hapus dihilangkan, ganti statusBadge)
                         tbody.innerHTML += `<tr>
                             <td class="text-center"><strong>${index + 1}</strong></td>
                             <td><strong>${peserta.nama}</strong></td>
                             <td class="text-center">${peserta.ukuran}</td>
-                            <td class="text-center"><button class="btn-delete" onclick="hapusData('${safeName}')">Hapus</button></td>
+                            <td class="text-center">${statusBadge}</td>
                         </tr>`;
 
-                        // Masukkan nama ke dalam Dropdown Logistik
-                        dropdownNama.innerHTML += `<option value="${peserta.nama}">${peserta.nama} (${peserta.ukuran})</option>`;
+                        // FITUR BARU: Hanya masukkan nama ke dropdown JIKA BELUM DIAMBIL
+                        if (peserta.status !== "Sudah Diambil") {
+                            dropdownNama.innerHTML += `<option value="${peserta.nama}">${peserta.nama} (${peserta.ukuran})</option>`;
+                        }
 
-                        // Hitung Rekap
+                        // Rekap (tetap sama)
                         let uk = String(peserta.ukuran).trim().toUpperCase();
                         let lenStr = String(peserta.lengan).toLowerCase().includes('panjang') ? 'Panjang' : 'Pendek';
                         if (uk !== "" && uk !== "UNDEFINED" && uk !== "-") {
@@ -137,7 +142,6 @@
                         }
                     });
 
-                    // Cetak Rekap
                     let rekapHtml = '<div style="font-weight: bold; margin-bottom: 10px;">Total Pesanan Kaos (Keseluruhan):</div>';
                     Object.keys(rekapKaos).sort().forEach(kunci => {
                         rekapHtml += `<div class="rekap-item">${kunci} = <strong>${rekapKaos[kunci]}</strong></div>`;
@@ -147,7 +151,6 @@
                 .catch(error => console.error('Error:', error));
         }
 
-        // Proses Eksekusi Kamera & Kirim Data
         function simpanPengambilan() {
             const nama = document.getElementById('input-nama').value;
             const pin = document.getElementById('input-pin').value;
@@ -169,10 +172,9 @@
             reader.onload = function(e) {
                 const base64String = e.target.result;
 
-                // Kirim data ke API menggunakan metode POST
                 fetch(apiUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Format aman untuk Apps Script
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({
                         action: "upload",
                         pin: pin,
@@ -187,10 +189,12 @@
                         statusText.innerText = "✅ Berhasil! Data dan foto telah tersimpan.";
                         alert(`Pengambilan kaos atas nama ${nama} berhasil dicatat!`);
                         
-                        // Bersihkan form
-                        document.getElementById('input-nama').value = '';
                         document.getElementById('input-pin').value = '';
                         document.getElementById('input-foto').value = '';
+                        
+                        // Otomatis me-refresh data tanpa reload web, 
+                        // nama akan langsung hilang dari dropdown dan tabel berubah jadi "✅ Sudah"
+                        muatData(); 
                     } else {
                         statusText.innerText = "❌ Gagal: " + res.message;
                     }
@@ -203,17 +207,7 @@
                 });
             };
             
-            reader.readAsDataURL(file); // Mulai ubah foto ke format teks base64
-        }
-
-        function hapusData(nama) {
-            let pass = prompt(`Password admin hapus data "${nama}":`);
-            if (!pass) return; 
-            if (confirm(`Hapus data ${nama}?`)) {
-                fetch(apiUrl + '?action=delete&nama=' + encodeURIComponent(nama) + '&pass=' + encodeURIComponent(pass))
-                    .then(res => res.json())
-                    .then(res => { res.status === 'success' ? muatData() : alert("GAGAL: " + res.message); });
-            }
+            reader.readAsDataURL(file);
         }
 
         muatData();
